@@ -18,6 +18,6 @@ class BrewTestCase(TestCase):
         self.assertEqual(ingredient.name, "Dandelion Root")
 
     def test_brew_can_have_ingredients(self):
-        
+        pass
         
 
