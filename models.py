@@ -15,7 +15,7 @@ class Brew(models.Model):
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True)
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='BrewIngredients',
+        through='BrewIngredient',
         blank=True
     )
 
@@ -23,17 +23,17 @@ class Brew(models.Model):
         return self.created.strftime("%Y-%m-%d %H:%M:%S") + " " + self.name
 
     def add_ingredient(self, ingredient, amount):
-        BrewIngredients.objects.create(
+        BrewIngredient.objects.create(
             ingredient=ingredient,
             brew=self,
             amount=amount
         )
     
     def get_ingredient_amount(self, ingredient):
-        return BrewIngredients.objects.get(ingredient=ingredient, brew=self).amount
+        return BrewIngredient.objects.get(ingredient=ingredient, brew=self).amount
 
     def get_total_ingredient_amounts(self):
-        return sum(list(map(lambda i: i.amount, BrewIngredients.objects.filter(brew=self))))
+        return sum(list(map(lambda i: i.amount, BrewIngredient.objects.filter(brew=self))))
 
     def get_ingredient_ratio(self, ingredient):
         return self.get_ingredient_amount(ingredient) / self.get_total_ingredient_amounts()
@@ -43,7 +43,7 @@ class Brew(models.Model):
         ingredient2_amount = self.get_ingredient_amount(ingredient2)
         return ingredient1_amount / (ingredient1_amount + ingredient2_amount)
 
-class BrewIngredients(models.Model):
+class BrewIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     brew = models.ForeignKey(Brew, on_delete=models.CASCADE)
     amount = models.IntegerField()
@@ -53,7 +53,7 @@ class Blend(models.Model):
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True)
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='BlendIngredients',
+        through='BlendIngredient',
         blank=True
     )
 
@@ -61,7 +61,7 @@ class Blend(models.Model):
         return self.created.strftime("%Y-%m-%d %H:%M:%S") + " " + self.name
 
     def add_ingredient(self, ingredient, amount):
-        BlendIngredients.objects.create(
+        BlendIngredient.objects.create(
             ingredient=ingredient,
             blend=self,
             amount=amount
@@ -73,10 +73,10 @@ class Blend(models.Model):
             self.add_ingredient(ingredient, ingredient_amount)
     
     def get_ingredient_amount(self, ingredient):
-        return BlendIngredients.objects.get(ingredient=ingredient, blend=self).amount
+        return BlendIngredient.objects.get(ingredient=ingredient, blend=self).amount
 
     def get_total_ingredient_amounts(self):
-        return sum(list(map(lambda i: i.amount, BlendIngredients.objects.filter(blend=self))))
+        return sum(list(map(lambda i: i.amount, BlendIngredient.objects.filter(blend=self))))
 
     def get_ingredient_ratio(self, ingredient):
         return self.get_ingredient_amount(ingredient) / self.get_total_ingredient_amounts()
@@ -86,7 +86,10 @@ class Blend(models.Model):
         ingredient2_amount = self.get_ingredient_amount(ingredient2)
         return ingredient1_amount / (ingredient1_amount + ingredient2_amount)
 
-class BlendIngredients(models.Model):
+class BlendIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     blend = models.ForeignKey(Blend, on_delete=models.CASCADE)
     amount = models.IntegerField()
+
+class Recipe(models.Model):
+    pass
