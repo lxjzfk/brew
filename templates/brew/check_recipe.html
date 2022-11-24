@@ -1,0 +1,48 @@
+{% extends "brew/index.html" %}
+{% block recipes %}
+{% if recipe %}
+    {{ note }}
+    <a href="confirm">Confirm &amp; load</a>
+    {% for blend in blends %}
+        {{ blend.name }}<br />
+    {% endfor %}
+    {% for ingredient in blend_ingredients %}
+        {{ ingredient.name }} 
+    {% endfor %}
+    {% for ingredient in blend_ingredient.ingredients %}
+        {{ ingredient.name }} - {{ ingredient.amount }}{{ ingredient.unit }} % {{ ingredient.ratio }}
+    {% endfor %}
+  <div class="blend">
+      <a href="/recipe/blend/{{ recipe.blend.id }}/">
+          <div class="name">
+              <span>{{ recipe.blend.name }}</span>
+          </div>
+      </a>
+  </div>
+
+  <table>
+    <tr>
+        <th>Blend Name</th>
+        <th>Ingredient Name</th>
+        <th>Amount</th>
+        <th>Price</th>
+        <th>Cost</th>
+        <th>Ratio</th>
+        <th>Notes</th>
+    </tr>
+  {% for entry in data %}
+    <tr>
+        <td>{{ entry.blend_name }}</td>
+        <td>{{ entry.blend_ingredient_name }}</td>
+        <td>{{ entry.blend_ingredient_amount }}{{ entry.blend_ingredient_unit }}</td>
+        <td>{{ entry.blend_ingredient_cost }}</td>
+        <td>{{ entry.total_cost }}</td>
+        <td>{{ entry.weight_ratio }}</td>
+        <td>{{ entry.notes }}</td>
+    </tr>
+  {% endfor %}
+  </table>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
+{% endblock %}

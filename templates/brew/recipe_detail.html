@@ -1,0 +1,27 @@
+{% extends "brew/index.html" %}
+{% block recipes %}
+{% if recipe %}
+  <div class="blend">
+      <a href="/recipe/blend/{{ recipe.blend.id }}/">
+          <div class="name">
+              <span>{{ recipe.blend.name }}</span>
+          </div>
+      </a>
+  </div>
+
+  {% for ingredient in recipe.ingredients %}
+  <div class="ingredients">
+      <span>
+        {{ ingredient.amount }}{{ ingredient.unit }}
+        <a href="/recipe/blend/ingredient/{{ ingredient.id }}/">
+              {{ ingredient.name }}
+        </a>
+        {{ ingredient.ratio }}
+      </span>
+  </div>
+  {% endfor %}
+  <a href="load">Load from file</a>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
+{% endblock %}
