@@ -26,7 +26,7 @@ class SimpleBrewTestCase(TestCase):
         self.assertGreater(self.brew.ingredients.count(), 0)
         
     def test_brew_ingredients_have_amounts(self):
-        self.assertIsInstance(self.brew.ingredients.first().brewingredients_set.first().amount, int)
+        self.assertIsInstance(self.brew.ingredients.first().brewingredient_set.first().amount, int)
 
     def test_brew_has_two_ingredients(self):
         self.assertEquals(self.brew.ingredients.count(), 2)
