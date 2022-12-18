@@ -1,5 +1,5 @@
 import datetime
-
+import csv
 from django.db import models
 
 
@@ -89,6 +89,21 @@ class Blend(models.Model):
         ingredient1_amount = self.get_ingredient_amount(ingredient1)
         ingredient2_amount = self.get_ingredient_amount(ingredient2)
         return ingredient1_amount / (ingredient1_amount + ingredient2_amount)
+    
+    def export_to_csv(self):
+        status = "Exporting to CSV"
+        headers = ['blend', 'ingredient', 'amount', 'unit', 'cost', 'total', 'ratio']
+
+        with open(self.name + '.csv', 'w', newline='') as csvfile:
+            status = "Writing to CSV"
+            blend_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for blend_ingredient in BlendIngredient.objects.select_related():
+                blend_writer.writerow([blend_ingredient.blend.name, blend_ingredient.ingredient.name, blend_ingredient.amount, blend_ingredient.unit, blend_ingredient.cost, blend_ingredient.amount * blend_ingredient.cost, blend_ingredient.get_ingredient_ratio()])
+        
+        recipe = Recipe(name=self.name+' Recipe from CSV', file=csvfile, blend=self)
+        status = recipe
+        return status
+
 
 class BlendIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)

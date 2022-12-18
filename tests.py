@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from brew.models import Blend, Brew, Ingredient
+from brew.models import Blend, Brew, Ingredient, Recipe
 
 
 class SimpleBrewTestCase(TestCase):
@@ -93,4 +93,17 @@ class CombinationBlendTestCase(TestCase):
     def test_combination_blend_has_six_ingredients(self):
         self.assertEquals(self.combination_blend.ingredients.count(), 6)
 
-    
+class CSVTestCase(TestCase):
+    def setUp(self):
+        self.blend = Blend.objects.create(name="Simple Blend")
+        self.dandelion = Ingredient.objects.create(name="Dandelion Root")
+        self.tulsi = Ingredient.objects.create(name="Tulsi")
+        self.licorice = Ingredient.objects.create(name="Licorice")
+        self.blend.add_ingredient(self.dandelion, 1)
+        self.blend.add_ingredient(self.tulsi, 1)
+        self.blend.add_ingredient(self.licorice, 1)
+        self.recipe = Recipe(name="Test")
+
+    def test_can_output_csv(self):
+        export = self.blend.export_to_csv()
+        self.assertIs(type(export), type(self.recipe))

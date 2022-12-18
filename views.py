@@ -73,11 +73,11 @@ def check_recipe(request, recipe_id):
 
                 blends.append(blend[0])
                 
-                for ing in blend[0].ingredients.select_related():
-                    ing.amount = BlendIngredient.objects.get(blend=blend[0], ingredient=ing, amount=entry.blend_ingredient_amount).amount
-                    ing.unit = BlendIngredient.objects.get(blend=blend[0], ingredient=ing, amount=entry.blend_ingredient_amount).unit
-                    ing.ratio = "{0:.0%}".format(BlendIngredient.objects.get(blend=blend[0], ingredient=ing, amount=entry.blend_ingredient_amount).get_ingredient_ratio())
-                    blend_ingredients.append(ing)
+                for item in blend[0].ingredients.select_related():
+                    item.amount = BlendIngredient.objects.get(blend=blend[0], ingredient=item, amount=entry.blend_ingredient_amount).amount
+                    item.unit = BlendIngredient.objects.get(blend=blend[0], ingredient=item, amount=entry.blend_ingredient_amount).unit
+                    item.ratio = "{0:.0%}".format(BlendIngredient.objects.get(blend=blend[0], ingredient=item, amount=entry.blend_ingredient_amount).get_ingredient_ratio())
+                    blend_ingredients.append(item)
 
         if recipe.blend is not None:
             note = "Recipe blend is currently present"
