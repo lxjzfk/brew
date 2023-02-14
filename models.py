@@ -172,7 +172,7 @@ class Recipe(models.Model):
                 except:
                     raise RuntimeError
                 else:
-                    print("I dunnot what to do with else.")
+                    pass
         
         self.file = csvfile
         status = 'Import Success'
