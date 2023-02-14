@@ -77,7 +77,7 @@ class Blend(models.Model):
             self.add_ingredient(ingredient, ingredient_amount)
     
     def get_ingredient_amount(self, ingredient):
-        return BlendIngredient.objects.get(ingredient=ingredient, blend=self).amount
+        return sum(blend_ingredient.amount for blend_ingredient in BlendIngredient.objects.filter(ingredient=ingredient, blend=self))
 
     def get_total_ingredient_amounts(self):
         return sum(list(map(lambda i: i.amount, BlendIngredient.objects.filter(blend=self))))
@@ -89,20 +89,6 @@ class Blend(models.Model):
         ingredient1_amount = self.get_ingredient_amount(ingredient1)
         ingredient2_amount = self.get_ingredient_amount(ingredient2)
         return ingredient1_amount / (ingredient1_amount + ingredient2_amount)
-    
-    def export_to_csv(self):
-        status = "Exporting to CSV"
-        headers = ['blend', 'ingredient', 'amount', 'unit', 'cost', 'total', 'ratio']
-
-        with open(self.name + '.csv', 'w', newline='') as csvfile:
-            status = "Writing to CSV"
-            blend_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for blend_ingredient in BlendIngredient.objects.select_related():
-                blend_writer.writerow([blend_ingredient.blend.name, blend_ingredient.ingredient.name, blend_ingredient.amount, blend_ingredient.unit, blend_ingredient.cost, blend_ingredient.amount * blend_ingredient.cost, blend_ingredient.get_ingredient_ratio()])
-        
-        recipe = Recipe(name=self.name+' Recipe from CSV', file=csvfile, blend=self)
-        status = recipe
-        return status
 
 
 class BlendIngredient(models.Model):
@@ -121,12 +107,79 @@ class BlendIngredient(models.Model):
     def get_ingredient_ratio(self):
         return self.blend.get_ingredient_ratio(self.ingredient)
 
+
 class Recipe(models.Model):
     name = models.CharField(max_length=40)
     file = models.FileField(verbose_name='Recipe File', blank=True)
     created = models.DateTimeField(auto_now=False, auto_now_add=True, null=True, blank=True)
     modified = models.DateTimeField(auto_now_add=True, null=True)
-    blend = models.ForeignKey(Blend, on_delete=models.CASCADE, null=True, blank=True)
+    blend = models.ManyToManyField(
+        Blend,
+        through='RecipeBlend',
+        blank=True
+    )
 
     def __str__(self) -> str:
         return self.created.strftime("%Y-%m-%d %H:%M:%S") + " " + self.name
+    
+    def add_blend(self, blend):
+        new_blend = RecipeBlend.objects.get_or_create(
+            blend=blend,
+            recipe=self
+        )
+        
+        if(new_blend[1]):
+            return "What do I do with this?"
+        else:
+            return "Already exists."
+
+
+    def export_recipe_to_csv(self):
+        status = "Exporting to CSV"
+        headers = ['blend', 'ingredient', 'amount', 'unit', 'cost', 'total', 'ratio']
+
+        with open(self.name + '.csv', 'w', newline='') as csvfile:
+            status = "Writing to CSV"
+            recipe_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            blends = self.blend.select_related()
+            if(blends):
+                for blend in blends:
+                    for blend_ingredient in BlendIngredient.objects.filter(blend=blend):
+                        recipe_writer.writerow([blend_ingredient.blend.name, blend_ingredient.ingredient.name, blend_ingredient.amount, blend_ingredient.unit, blend_ingredient.cost, blend_ingredient.amount * blend_ingredient.cost, blend_ingredient.get_ingredient_ratio()])
+        
+        self.file = self.name + '.csv'
+        status = 'CSV Writing Success'
+        return status
+
+    def import_recipe_from_csv(self):
+        status = "Importing from CSV"
+        headers = ['blend', 'ingredient', 'amount', 'unit', 'cost', 'total', 'ratio']
+        blend_for_import = None
+
+        with open(self.name + '.csv', 'w', newline='') as csvfile:
+            status = "Reading from CSV"
+            blend_reader = csv.reader(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            
+            for blend_ingredient in blend_reader:
+                ingredient = blend_reader.readrow()
+                try:
+                    BlendIngredient.objects.get_or_create(name=ingredient.name)
+                except:
+                    raise ImportError
+                
+                try:
+                    blend_for_import.add_ingredient(ingredient)
+                except:
+                    raise RuntimeError
+                else:
+                    print("I dunnot what to do with else.")
+        
+        self.file = csvfile
+        status = 'Import Success'
+        return status
+
+
+class RecipeBlend(models.Model):
+    added = models.DateTimeField(auto_now=False, auto_now_add=True, null=True, blank=True)
+    blend = models.ForeignKey(Blend, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)

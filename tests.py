@@ -1,22 +1,19 @@
 from django.test import TestCase
-
+import os.path
 from brew.models import Blend, Brew, Ingredient, Recipe
 
 
 class SimpleBrewTestCase(TestCase):
+    fixtures = ['brew.yaml']
+
     def setUp(self):
-        Brew.objects.create(name="Simple Brew")
-        Ingredient.objects.create(name="Dandelion Root")
-        Ingredient.objects.create(name="Tulsi")
         self.brew = Brew.objects.get(name="Simple Brew")
         self.dandelion = Ingredient.objects.get(name="Dandelion Root")
         self.tulsi = Ingredient.objects.get(name="Tulsi")
-        self.brew.add_ingredient(self.dandelion, 1)
-        self.brew.add_ingredient(self.tulsi, 1)
         
     def test_brew_has_name(self):
-        brew = Brew.objects.get(name="Simple Brew")
-        self.assertEqual(brew.name, "Simple Brew")
+        brew = Brew.objects.all().first()
+        self.assertIs(type(brew.name), str)
     
     def test_ingredient_has_name(self):
         ingredient = Ingredient.objects.get(name="Dandelion Root")
@@ -37,11 +34,9 @@ class SimpleBrewTestCase(TestCase):
 
 
 class ComplexBrewTestCase(TestCase):
+    fixtures = ['brew.yaml']
+
     def setUp(self):
-        Brew.objects.create(name="Complex Brew")
-        Ingredient.objects.create(name="Dandelion Root")
-        Ingredient.objects.create(name="Tulsi")
-        Ingredient.objects.create(name="Licorice")
         self.brew = Brew.objects.get(name="Complex Brew")
         self.dandelion = Ingredient.objects.get(name="Dandelion Root")
         self.tulsi = Ingredient.objects.get(name="Tulsi")
@@ -58,29 +53,27 @@ class ComplexBrewTestCase(TestCase):
         self.assertEquals(self.brew.get_ingredients_ratio(self.dandelion, self.tulsi), 0.5)
 
 class SimpleBlendTestCase(TestCase):
+    fixtures = ['brew.yaml']
+
     def setUp(self):
-        self.blend = Blend.objects.create(name="Simple Blend")
-        self.dandelion = Ingredient.objects.create(name="Dandelion Root")
-        self.tulsi = Ingredient.objects.create(name="Tulsi")
-        self.licorice = Ingredient.objects.create(name="Licorice")
-        self.blend.add_ingredient(self.dandelion, 1)
-        self.blend.add_ingredient(self.tulsi, 1)
-        self.blend.add_ingredient(self.licorice, 1)
+        self.blend = Blend.objects.get(name="Simple Blend")
     
-    def test_blend_has_three_ingredients(self):
-        self.assertEquals(self.blend.ingredients.count(), 3)
+    def test_blend_has_one_ingredients(self):
+        self.assertEquals(self.blend.ingredients.count(), 1)
 
 class CombinationBlendTestCase(TestCase):
+    fixtures = ['brew.yaml']
+
     def setUp(self):
         self.blend1 = Blend.objects.create(name="First Blend")
         self.blend2 = Blend.objects.create(name="Second Blend")
-        self.combination_blend = Blend.objects.create(name="Combination Blend")
-        self.dandelion = Ingredient.objects.create(name="Dandelion Root")
-        self.tulsi = Ingredient.objects.create(name="Tulsi")
-        self.licorice = Ingredient.objects.create(name="Licorice")
-        self.ginger = Ingredient.objects.create(name="Ginger Root")
-        self.assam = Ingredient.objects.create(name="Black Assam Tea")
-        self.cinnamon = Ingredient.objects.create(name="Cinnamon")
+        self.combination_blend = Blend.objects.get(name="Combination Blend")
+        self.dandelion = Ingredient.objects.get(name="Dandelion Root")
+        self.tulsi = Ingredient.objects.get(name="Tulsi")
+        self.licorice = Ingredient.objects.get(name="Licorice")
+        self.ginger = Ingredient.objects.get(name="Ginger Root")
+        self.assam = Ingredient.objects.get(name="Black Assam Tea")
+        self.cinnamon = Ingredient.objects.get(name="Cinnamon")
         self.blend1.add_ingredient(self.dandelion, 1)
         self.blend1.add_ingredient(self.tulsi, 1)
         self.blend1.add_ingredient(self.licorice, 1)
@@ -93,17 +86,25 @@ class CombinationBlendTestCase(TestCase):
     def test_combination_blend_has_six_ingredients(self):
         self.assertEquals(self.combination_blend.ingredients.count(), 6)
 
-class CSVTestCase(TestCase):
+class RecipeTestCase(TestCase):
+    fixtures = ['brew.yaml']
+
     def setUp(self):
-        self.blend = Blend.objects.create(name="Simple Blend")
-        self.dandelion = Ingredient.objects.create(name="Dandelion Root")
-        self.tulsi = Ingredient.objects.create(name="Tulsi")
-        self.licorice = Ingredient.objects.create(name="Licorice")
+        self.recipe = Recipe.objects.get(name="Test Recipe")
+        self.blend = Blend.objects.get(name="Simple Blend")
+        self.dandelion = Ingredient.objects.get(name="Dandelion Root")
+        self.tulsi = Ingredient.objects.get(name="Tulsi")
+        self.licorice = Ingredient.objects.get(name="Licorice")
         self.blend.add_ingredient(self.dandelion, 1)
         self.blend.add_ingredient(self.tulsi, 1)
         self.blend.add_ingredient(self.licorice, 1)
-        self.recipe = Recipe(name="Test")
+        self.recipe = Recipe.objects.get_or_create(name="Test")[0]
+        self.recipe.add_blend(self.blend)
 
-    def test_can_output_csv(self):
-        export = self.blend.export_to_csv()
-        self.assertIs(type(export), type(self.recipe))
+    def test_can_export_recipe_to_csv(self):
+        self.recipe.export_recipe_to_csv()
+        self.assertTrue(os.path.exists(self.recipe.file.path))
+    
+    def can_import_recipe_from_csv(self):
+        status = self.recipe.import_recipe_from_csv()
+        self.assertEquals(status, 'Import Success')

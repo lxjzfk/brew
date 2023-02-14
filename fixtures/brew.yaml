@@ -1,0 +1,85 @@
+[
+  {
+    "model": "brew.recipe",
+    "pk": 1,
+    "fields": { "name": "Test Recipe" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 1,
+    "fields": { "name": "Dandelion Root" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 2,
+    "fields": { "name": "Tulsi" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 3,
+    "fields": { "name": "Licorice" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 4,
+    "fields": { "name": "Ginger Root" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 5,
+    "fields": { "name": "Black Assam Tea" },
+  },
+  {
+    "model": "brew.ingredient",
+    "pk": 6,
+    "fields": { "name": "Cinnamon" },
+  },
+  { "model": "brew.ingredient", "pk": 2, "fields": { "name": "Tulsi" } },
+  {
+    "model": "brew.brew",
+    "pk": 1,
+    "fields": { "name": "Simple Brew", "created": "2022-12-08T13:51:16.166Z" },
+  },
+  {
+    "model": "brew.brew",
+    "pk": 2,
+    "fields": { "name": "Complex Brew", "created": "2022-12-08T13:51:16.166Z" },
+  },
+  {
+    "model": "brew.brewingredient",
+    "pk": 1,
+    "fields": { "ingredient": 1, "brew": 1, "amount": 1 },
+  },
+  {
+    "model": "brew.brewingredient",
+    "pk": 2,
+    "fields": { "ingredient": 2, "brew": 1, "amount": 1 },
+  },
+  {
+    "model": "brew.blend",
+    "pk": 1,
+    "fields": { "name": "Simple Blend", "created": "2022-11-11T11:11:11.111Z" },
+  },
+  {
+    "model": "brew.blend",
+    "pk": 2,
+    "fields": { "name": "Complex Blend", "created": "2022-11-18T11:11:11.111Z" },
+  },
+  {
+    "model": "brew.blend",
+    "pk": 3,
+    "fields": { "name": "Combination Blend", "created": "2022-11-18T11:11:11.111Z" },
+  },
+  {
+    "model": "brew.blendingredient",
+    "pk": 1,
+    "fields":
+      {
+        "ingredient": 1,
+        "blend": 1,
+        "amount": "123.00000",
+        "unit": "g",
+        "cost": "23.0000",
+      },
+  },
+]
