@@ -1,0 +1,15 @@
+{% for recipe in recipies %}
+    <h1>{{ recipe.name }}</h1>
+
+    <strong>File:</strong> {{ recipe.file }} <br>
+    <strong>Created:</strong> {{ recipe.created }} <br>
+    <strong>Modified:</strong> {{ recipe.modified }} <br>
+
+    <strong>Blends:</strong> <br>
+    {% for blend in recipe.blends.all %}
+        {{ blend }}
+        {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+{% empty %}
+    No recipies yet.
+{% endfor %}

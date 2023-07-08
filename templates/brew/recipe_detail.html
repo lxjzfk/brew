@@ -1,27 +1,25 @@
 {% extends "brew/index.html" %}
 {% block recipes %}
-{% if recipe %}
-  <div class="blend">
-      <a href="/recipe/blend/{{ recipe.blend.id }}/">
-          <div class="name">
-              <span>{{ recipe.blend.name }}</span>
+  {% if recipe %}
+    {% if recipe_blends %}
+      {% for blend in recipe_blends %}
+        {% for ingredient in recipe.ingredients %}
+          <div class="ingredients">
+              <span>
+                  {{ ingredient.amount }}{{ ingredient.unit }}
+                  <a href="/recipe/blend/ingredient/{{ ingredient.id }}/">
+                      {{ ingredient.name }}
+                  </a>
+                  {{ ingredient.ratio }}
+              </span>
           </div>
-      </a>
-  </div>
-
-  {% for ingredient in recipe.ingredients %}
-  <div class="ingredients">
-      <span>
-        {{ ingredient.amount }}{{ ingredient.unit }}
-        <a href="/recipe/blend/ingredient/{{ ingredient.id }}/">
-              {{ ingredient.name }}
-        </a>
-        {{ ingredient.ratio }}
-      </span>
-  </div>
-  {% endfor %}
-  <a href="load">Load from file</a>
-{% else %}
+        {% endfor %}
+      {% endfor %}
+    {% else %}
+      <p>No blends are in {{ recipe.name }}
+    {% endif %}
+  {% else %}
     <p>No recipes are available.</p>
-{% endif %}
+  {% endif %}
+  <a href="check">Check file</a>
 {% endblock %}
