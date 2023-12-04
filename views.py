@@ -20,21 +20,27 @@ def recipes(request):
 
     for recipe in recipes:
         recipe_blends = recipe.blend.select_related()
+
         if recipe_blends is not None:
             for blend in recipe_blends:
                 blend_ingredients = blend.ingredients.select_related()
+
                 for ingredient in blend_ingredients:
                     ingredient.amount = BlendIngredient.objects.get(
                         blend=recipe.blend, ingredient=ingredient).amount
+                    
                     ingredient.unit = BlendIngredient.objects.get(
                         blend=recipe.blend, ingredient=ingredient).unit
+                    
                     ingredient.ratio = "{0:.0%}".format(BlendIngredient.objects.get(
                         blend=recipe.blend, ingredient=ingredient).get_ingredient_ratio())
     
     template = loader.get_template('brew/recipes.html')
+
     context = {
         'recipes': recipes
     }
+
     return HttpResponse(template.render(context, request))
 
 def recipe_detail(request, recipe_id):

@@ -2,7 +2,8 @@
 {% block recipes %}
 {% if recipes %}
 	<div class="list">
-	<h1>Recipes:</h1>
+	<h1>Recipes</h1>
+	<div>Basic Recipes List:</div>
 	{% for recipe in recipes %}
 		{% if recipe %}
 			<div class="item">
@@ -15,6 +16,7 @@
 		{% endif %}
 	{% endfor %}
 	</div>
+	<div>Recipes with Brew Ingredients list:</div>
 	<div class="list">
 		{% for recipe in recipes %}
 			{% if recipe %}
